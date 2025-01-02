@@ -77,6 +77,6 @@ def AskForNotes(Token):
     queryStringNoteRequest={
         "verbe" : "get",
     }
-    notesRequest = requests.post("https://api.ecoledirecte.com/v3/eleves/4040/notes.awp", data={"data": json.dumps(dataNotesRequest)}, headers=headersNoteRequest, params=queryStringNoteRequest)
+    notesRequest = requests.post("https://api.ecoledirecte.com/v3/eleves/xxxx/notes.awp", data={"data": json.dumps(dataNotesRequest)}, headers=headersNoteRequest, params=queryStringNoteRequest)
     dataNotes = notesRequest.json()
     return dataNotes["data"]
