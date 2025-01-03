@@ -34,8 +34,7 @@ def ConnectToEd(username, password):
     Firsttoken = r2.headers["X-Token"]
     return data2["data"]
 
-def ConnectToEdPart2(answer):
-    print(str(answer))
+def ConnectToEdPart2(answer):
     dataConnection3={
         "choix" : answer.decode(),
     }
