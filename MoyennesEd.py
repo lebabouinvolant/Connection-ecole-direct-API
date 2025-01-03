@@ -30,20 +30,51 @@ root = customtkinter.CTk()
 root.geometry("1000x700")
 
 def ConnectionCallback(Token):
-    global token
-    token = Token
     if(RemindMe.get() == 1):
         with open(path, 'wb') as file:
             pickle.dump([username, pswd], file)
     QuestionFrame.destroy()
-    Moyenne(AskForNotes(Token))
+    PeriodFrame = customtkinter.CTkFrame(master=frame, width = 400, height=200)
+    PeriodFrame.pack(pady=20, padx=30, fill="both", expand=False)
+    PeriodLabel = customtkinter.CTkLabel(master=PeriodFrame, text="Choisissez la période")
+    PeriodLabel.pack(pady=15)
+    RawPeriods = GetPeriod(AskForNotes(Token))
+    RawPeriods.append(["Toute l'année", None])
+    FormattedPeriods = [x[0] for x in RawPeriods]
+    optionmenu = customtkinter.CTkOptionMenu(master=PeriodFrame, values=FormattedPeriods)
+    optionmenu.pack(pady=40)
+    ConfirmButton = customtkinter.CTkButton(master=PeriodFrame, text="Calculer la moyenne", command=lambda: GetNotesForPeriod(Token, optionmenu.get(), PeriodFrame))
+    ConfirmButton.pack(pady=60)
+
+def GetNotesForPeriod(Token, Period, ToDestroy):
+    codePeriod = ""
+    for element in GetPeriod(AskForNotes(Token)):
+        if element[0] == Period:
+            codePeriod = element[1]
+            break
+    AllNotes = AskForNotes(Token)["notes"]
+    NotesFromPeriod = {}
+    if codePeriod == "": #No period found, let's take all notes
+        for note in AllNotes:
+            if note["codeMatiere"] in NotesFromPeriod:
+                NotesFromPeriod[note["codeMatiere"]].append([float(note["valeur"]), float(note["noteSur"])]) #Maybe add coeff here (bruh the franglais)
+            else:
+                NotesFromPeriod.update({note["codeMatiere"]:[[float(note["valeur"]), float(note["noteSur"])]]})
+    else:
+        for note in AllNotes:
+            if note["codePeriode"] == codePeriod:
+                note["valeur"] = note["valeur"].replace(",", ".")
+                if note["codeMatiere"] in NotesFromPeriod:
+                    NotesFromPeriod[note["codeMatiere"]].append([float(note["valeur"]), float(note["noteSur"])]) #Maybe add coeff here (bruh the franglais)
+                else:
+                    NotesFromPeriod.update({note["codeMatiere"]:[[float(note["valeur"]), float(note["noteSur"])]]})
+    Moyenne(NotesFromPeriod, ToDestroy)
+
 
 
 def Questions(data):
     DecodedQuestion = base64.b64decode(data["question"])
-    print(DecodedQuestion)
     DecodedPurpositions = []
-    print(data["propositions"])
     for proposition in data["propositions"]:
         DecodedPurpositions.append(base64.b64decode(proposition))
     global username, pswd
@@ -60,30 +91,22 @@ def Questions(data):
     ConfirmButton.pack(pady=60)
 
 
-def SelectPeriod(Notes):
+def GetPeriod(Notes):
     Periods = []
     for Period in Notes["periodes"]:
-        if Period["periode"] != "Relevé":
+        if Period["periode"] != "Relevé " and Period["periode"] != "Année": #The space after Relevé is normal, it'in the ED version
             Periods.append([Period["periode"], Period["codePeriode"]])
+    return Periods
 
 
-def Moyenne(Notes):
-    NotesTrimester1raw = []
-    for note in Notes["notes"]:
-        if note["codePeriode"] == "A001":
-            NotesTrimester1raw.append(note)
-    NotesTrimester1 = {}
-    for note in NotesTrimester1raw:
-        note["valeur"] = note["valeur"].replace(",", ".")
-        if note["codeMatiere"] in NotesTrimester1:
-            NotesTrimester1[note["codeMatiere"]].append([float(note["valeur"]), float(note["noteSur"])]) #Maybe add coeff here (bruh the franglais)
-        else:
-            NotesTrimester1.update({note["codeMatiere"]:[[float(note["valeur"]), float(note["noteSur"])]]})
+def Moyenne(NotesFromPeriod, ToDestroy = None):
+    if ToDestroy != None:
+        ToDestroy.destroy()
     AllMoyennes = []
-    for matiere in NotesTrimester1:
+    for matiere in NotesFromPeriod:
         NotesSum = 0
         NotesCount = 0
-        for note in NotesTrimester1[matiere]:
+        for note in NotesFromPeriod[matiere]:
             NotesSum += note[0]*(20/note[1])
             NotesCount += 1
         AllMoyennes.append(NotesSum/NotesCount)
@@ -93,7 +116,7 @@ def Moyenne(Notes):
         MoyenneG += moyenne
         MoyennesCount += 1
     MoyenneG = MoyenneG / MoyennesCount
-    label.configure(text=f"Moyenne générale: {round(MoyenneG, 2)}")
+    label.configure(text=f"Moyenne pour la période: {round(MoyenneG, 2)}")
 
         
 frame = customtkinter.CTkFrame(master=root)
@@ -102,7 +125,7 @@ frame.pack(pady=20, padx=30, fill="both", expand=True)
 frame2 = customtkinter.CTkFrame(master=frame, width=500, height=100)
 frame2.pack(pady=20, padx=30, fill="both", expand=False)
 
-HelloText = customtkinter.CTkLabel(master=frame2, width=400, height=50, text="Bonjour Thomas, nous sommes le " + date.today().strftime("%a %d %B %Y"))
+HelloText = customtkinter.CTkLabel(master=frame2, width=400, height=50, text="Bonjour, nous sommes le " + date.today().strftime("%a %d %B %Y"))
 HelloText.pack(pady=5, padx=7)
 
 frame3 = customtkinter.CTkFrame(master=frame, width = 500, height=60)
