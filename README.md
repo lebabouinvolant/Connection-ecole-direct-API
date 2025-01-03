@@ -8,4 +8,4 @@ Pour utiliser ce projet, vous aurez besoin d'une version récente de python (une
 pip install customtkinter
 ```
 ## Note
-Le fait qu'il y ait 2 fonctions pour se connecter à école direct est dû à leur système de QCM, la première question renvoie donc la liste des questions et vous devez renvoyer la version encodée en base 64 de la bonne réponse à la fonction ConnectToEDPart2 (comme fait dans le programme moyenne).
+- Le fait qu'il y ait 2 fonctions pour se connecter à école direct est dû à leur système de QCM, la première question renvoie donc la liste des questions et vous devez renvoyer la version encodée en base 64 de la bonne réponse à la fonction ConnectToEDPart2 (comme fait dans le programme moyenne)
