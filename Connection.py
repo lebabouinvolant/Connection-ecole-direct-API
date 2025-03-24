@@ -1,9 +1,10 @@
 import requests
 import json
 
-name = ""
+name = "" #Initialization of global vars
 pswd = ""
 Firsttoken = ""
+id = ""
 
 def ConnectToEd(username, password):
     global name, pswd, Firsttoken
@@ -34,7 +35,8 @@ def ConnectToEd(username, password):
     Firsttoken = r2.headers["X-Token"]
     return data2["data"]
 
-def ConnectToEdPart2(answer):
+def ConnectToEdPart2(answer):
+    print(str(answer))
     dataConnection3={
         "choix" : answer.decode(),
     }
@@ -62,6 +64,8 @@ def ConnectToEdPart2(answer):
         "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
     }
     r4 = requests.post("https://api.ecoledirecte.com/v3/login.awp", data={"data": json.dumps(dataConnection4)}, headers=Headers4)
+    global id
+    id = r4.json()["data"]["accounts"][0]["id"]
     return r4.headers["X-Token"]
 
 
@@ -76,6 +80,6 @@ def AskForNotes(Token):
     queryStringNoteRequest={
         "verbe" : "get",
     }
-    notesRequest = requests.post("https://api.ecoledirecte.com/v3/eleves/xxxx/notes.awp", data={"data": json.dumps(dataNotesRequest)}, headers=headersNoteRequest, params=queryStringNoteRequest)
+    notesRequest = requests.post(f"https://api.ecoledirecte.com/v3/eleves/{id}/notes.awp", data={"data": json.dumps(dataNotesRequest)}, headers=headersNoteRequest, params=queryStringNoteRequest)
     dataNotes = notesRequest.json()
     return dataNotes["data"]
