@@ -9,3 +9,4 @@ pip install customtkinter
 ```
 ## Note
 - Le fait qu'il y ait 2 fonctions pour se connecter à école direct est dû à leur système de QCM, la première question renvoie donc la liste des questions et vous devez renvoyer la version encodée en base 64 de la bonne réponse à la fonction ConnectToEDPart2 (comme fait dans le programme moyenne)
+- Pour rajouter vous-même des fonctions comme AskForNotes (pour par exemple obtenir l'emploi du temps), n'oubliez pas de construire l'URL avec l'ID (qui est une variable globale) de l'élève, comme dans la fonction pour les notes (ex: f"https://api.ecoledirecte.com/v3/eleves/{id}/notes.awp")
